@@ -5,10 +5,10 @@ metadata:
   namespace: argocd
 spec:
   generators:
-    - git: git@github.com/jholtan/demo-applications.git
-      revision: HEAD
-      directories:
-        - path: apps/*/envs/prod
+  - git: git@github.com/jholtan/demo-applications.git
+    revision: HEAD
+    directories:
+    - path: apps/*/envs/prod
   template:
     metadata:
       name: '{{index .path.segments 1}}-{{index .path.segments 3}}'
