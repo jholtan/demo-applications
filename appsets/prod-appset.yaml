@@ -5,7 +5,7 @@ metadata:
   namespace: argocd
 spec:
   generators:
-    - git: https://github.com/jholtan/demo-applications.git
+    - git: git@github.com/jholtan/demo-applications.git
       revision: HEAD
       directories:
         - path: apps/*/envs/prod
@@ -16,7 +16,7 @@ spec:
       project: default
 
       source:
-        repoURL: https://github.com/jholtan/demo-applications.git
+        repoURL: git@github.com/jholtan/demo-applications.git
         targetRevision: HEAD
         path: '{{.path.path}}'
 
