@@ -37,7 +37,7 @@ jobs:
 
           result=$(find . -type f \( -name 'kustomization.yaml' -o -name 'kustomization.yml' \) -path "*/${DEPLOY_TO_ENV}/*" -path "*/${APPLICATION_NAME}/*" -exec dirname {} \; | sort | uniq)
           if [ -z "$result" ] || [ $(echo "$result" | wc -l) -ne 1 ]; then
-            echo "Error: Expected exactly one result."
+            echo "::error title=Misconfigured config repository::Expected exactly one result. Found ${result}"
             echo "$result"
             exit 1
           fi
