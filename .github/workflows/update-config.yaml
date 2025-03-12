@@ -1,0 +1,66 @@
+name: Update config repository
+
+on:
+  workflow_dispatch:
+    inputs:
+      application:
+        description: "Name of the application to deploy"
+        required: true
+      environment:
+        description: "Name of environment to deploy to"
+        required: true
+      digest:
+        description: "Image digest to deploy"
+        required: true
+
+env:
+  APPLICATION_NAME: ${{ inputs.application }}
+  DEPLOY_TO_ENV: ${{ inputs.environment }}
+  IMAGE_DIGEST: ${{ inputs.digest }}
+  IMAGE_NAME: "docker.io/library/nginx"
+
+jobs:
+  update-config:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4.2.2
+        with:
+          persist-credentials: true
+
+      - name: Discover kustomization.yaml for ${{ env.APPLICATION_NAME }} in ${{ env.DEPLOY_TO_ENV }}
+        id: discover
+        run: |
+          #!/bin/bash
+
+          if [ -z "$1" ] || [ -z "$2" ]; then
+            echo "Usage: $0 <applicationname> <environment>"
+            exit 1
+          fi
+
+          appname=$1
+          environment=$2
+
+          result=$(find . -type f \( -name 'kustomization.yaml' -o -name 'kustomization.yml' \) -path "*/${environment}/*" -path "*/${appname}/*" -exec dirname {} \; | sort | uniq)
+          if [ -z "$result" ] || [ $(echo "$result" | wc -l) -ne 1 ]; then
+            echo "Error: Expected exactly one result."
+            echo "$result"
+            exit 1
+          fi
+
+          echo "dir=$result" >> $GITHUB_OUTPUT
+
+      - name: Update manifest
+        working-directory: ${{ steps.discover.outputs.dir }}
+        run: |
+          kustomize edit set image ${IMAGE_NAME}=*@${IMAGE_DIGEST}
+
+      - name: Commit changes
+        run: |
+          git config --global user.name "deployment[bot]"
+          git config --global user.email "deployment[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m"chore(deploy): Update ${APPLICATION_NAME} in ${DEPLOY_TO_ENV}"
+          git push
