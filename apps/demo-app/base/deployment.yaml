@@ -14,7 +14,7 @@ spec:
         app: demo-app
     spec:
       containers:
-      - image: docker.io/library/nginx:1.27
-        name: demo-app
-        ports:
-        - containerPort: 80
+        - image: ghcr.io/jholtan/demoapp@sha256:fb318f5f1984f672c8aeabea630f48c1da5a2005cba49317aa1e38148698958a
+          name: demo-app
+          ports:
+            - containerPort: 8080

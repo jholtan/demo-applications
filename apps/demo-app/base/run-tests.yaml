@@ -1,0 +1,52 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: EventSource
+metadata:
+  name: deployment-trigger
+spec:
+  resource:
+    deployment:
+      namespace: default
+      group: apps
+      version: v1
+      resource: Deployment
+      eventTypes:
+        - ADD
+        - DELETE
+      filter:
+        labels:
+          - key: app
+            operation: "=="
+            value: "demo-app"
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Sensor
+metadata:
+  name: integration-tests
+spec:
+  dependencies:
+    - name: run-tests
+      eventSourceName: deployment-trigger
+      eventName: deployment
+  triggers:
+    - template:
+        name: integration-test-job-trigger
+        k8s:
+          operation: create
+          source:
+            resource:
+              apiVersion: v1
+              kind: Job
+              metadata:
+                generateName: integration-test-job-
+              spec:
+                template:
+                  spec:
+                    containers:
+                      - name: integration-tests
+                        image: docker.io/library/bash:5.2
+                        command:
+                          - "echo"
+                          - "Running the tests"
+                        imagePullPolicy: Always
+                    restartPolicy: Never
