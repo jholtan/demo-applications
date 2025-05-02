@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: test-runner
+  labels:
+    app.kubernetes.io/name: test-runner
+spec:
+  replicas: 1
+  revisionHistoryLimit: 1
+  selector:
+    matchLabels:
+      app: test-runner
+  template:
+    metadata:
+      labels:
+        app: test-runner
+        app.kubernetes.io/name: test-runner
+    spec:
+      containers:
+        - image: ghcr.io/jholtan/deployment-operator:run-jobs
+          name: demo-app
+          imagePullPolicy: Always
+      serviceAccountName: run-job-acc
