@@ -25,3 +25,7 @@ spec:
               mountPath: "/manifests"
               readOnly: true
       serviceAccountName: run-job-acc
+      volumes:
+        - name: manifests
+          configMap:
+            name: test-runner-cm
