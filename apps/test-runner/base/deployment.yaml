@@ -7,7 +7,7 @@ metadata:
 spec:
   replicas: 1
   revisionHistoryLimit: 1
-  selector:
+  ctor:
     matchLabels:
       app: test-runner
   template:
@@ -20,4 +20,8 @@ spec:
         - image: ghcr.io/jholtan/deployment-operator:run-jobs
           name: demo-app
           imagePullPolicy: Always
+          volumeMounts:
+            - name: manifests
+              mountPath: "/manifests"
+              readOnly: true
       serviceAccountName: run-job-acc

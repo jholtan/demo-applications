@@ -1,0 +1,20 @@
+---
+# https://kubernetes.io/docs/concepts/configuration/configmap/
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: test-runner-cm
+data:
+  tests.yaml: |
+    apiVersion: batch/v1
+    kind: Job
+    metadata: 
+      name: tests
+    spec:
+      template:
+        spec:
+          containers:
+            - name: tests
+              image: ghcr.io/jholtan/echo-app:latest
+              imagePullPolicy: Always
+          restartPolicy: Never
